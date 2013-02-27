@@ -1,0 +1,23 @@
+#!/usr/bin/php
+<?php
+
+define('FROM_BRANCH', 'release');
+define('TO_BRANCH', 'master');
+
+$cmd =  "git checkout origin/" . TO_BRANCH . ";";
+$cmd .= "git cherry origin/" . FROM_BRANCH . ";";
+
+$output = explode("\n", exec($cmd));
+
+$commits = array();
+foreach($output as $commit) {
+	if (substr($commit, 0, 2) == '+ ') {
+		$commits[] = $commit;
+	}
+}
+
+$diverged = count($commits);
+
+if (count($commits) > 0) {
+	echo "\nYour branches are diverged"
+}
