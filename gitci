@@ -1,0 +1,13 @@
+#!/usr/bin/php
+<?php
+
+if (count($argv) < 2) {
+  die("-------------------\nI need a message :-)\n-------------------\n");
+}
+
+
+$branch = exec('git rev-parse --abbrev-ref HEAD');
+$prefix = substr($branch, strpos($branch, '/') + 1 , strlen($branch));
+$prefix = substr($prefix, 0, strpos($prefix, '_'));
+
+exec("git ci -m '[$prefix] : $argv[1]'");
