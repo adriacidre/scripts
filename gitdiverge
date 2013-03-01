@@ -4,20 +4,35 @@
 define('FROM_BRANCH', 'release');
 define('TO_BRANCH', 'master');
 
-$cmd =  "git checkout origin/" . TO_BRANCH . ";";
+$to = 'your@mail.com';
+$subject = 'Hotfixes not ported!!';
+
+
+
+if (count($argv) < 2) {
+  die("-------------------\nI need a message :-)\n-------------------\n");
+}
+
+$path = $argv[1];
+
+$cmd  = "cd $path;";
+$cmd .= "git fetch;";
+$cmd .= "git checkout origin/" . TO_BRANCH . ";";
 $cmd .= "git cherry origin/" . FROM_BRANCH . ";";
 
 $output = explode("\n", exec($cmd));
 
-$commits = array();
+$commits = '';
 foreach($output as $commit) {
 	if (substr($commit, 0, 2) == '+ ') {
-		$commits[] = $commit;
+		$commit  = str_replace('+ ', '', $commit);
+		$author  = exec("cd $path; git show " . $commit . " | grep Author");
+		$commits .= "\n\nhttps://github.com/user/project/commit/" . $commit;
+		$commits .= "\n$author";
 	}
 }
 
-$diverged = count($commits);
-
-if (count($commits) > 0) {
-	echo "\nYour branches are diverged"
+if ($commits != '') {
+	$msg = "\nYour " . TO_BRANCH . " is diverging from " . FROM_BRANCH . " on \n" . $commits;
+	mail($to, $subject, $msg);
 }
